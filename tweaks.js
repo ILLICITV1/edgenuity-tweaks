@@ -154,9 +154,8 @@
     config_window.innerHTML = ''; // Clear current config window content
     create_close_button(config_window); // Add the close button to the socials screen
     create_title(config_window, 'Credits');
-    create_element('p', { innerHTML: 'Steam: <a href="https://steamcommunity.com/profiles/76561198265104876" target="_blank">76561198265104876</a>' }, config_window);
-    create_element('p', { innerHTML: 'YouTube: <a href="https://www.youtube.com/dylanhook" target="_blank">dylanhook</a>' }, config_window);
-    create_element('p', { innerHTML: 'Discord: <a href="https://discord.gg/pN5fzxaEt5" target="_blank">Join Discord</a>' }, config_window);
+    // Remove Steam and Youtube links
+    create_element('p', { innerHTML: 'Discord: <a href="https://discord.gg/jK4cHTTQ5s" target="_blank">Join Discord</a>' }, config_window);
     create_element('button', {
       innerText: 'Go Back',
       style: 'margin-top:20px;padding:10px 20px;border:none;background-color:#444;color:white;border-radius:5px;cursor:pointer;',
@@ -255,6 +254,10 @@
           if (is_checked('auto_advance_tickbox')) {
             auto_advance();
           }
+          // Execute guess practice if enabled
+          if (is_checked('guess_practice_tickbox')) {
+            guess_practice();
+          }
         } else if (elapsed_time !== last_elapsed_time) { // Check if the timer has moved
           // Update the time when the timer last moved
           last_time_moved = new Date().getTime();
@@ -263,25 +266,33 @@
           write_to_debug_console('Timer has stopped moving for 3 seconds.');
           // Execute auto_advance function
           auto_advance();
+          // Execute guess practice if enabled
+          if (is_checked('guess_practice_tickbox')) {
+            guess_practice();
+          }
         }
         // Update last observed elapsed time
         last_elapsed_time = elapsed_time;
       } else {
         write_to_debug_console('Timer element not found in the iframe.');
-        if (is_checked('guess_practice_tickbox')) {
-          guess_practice();
-        }
+        // Execute auto_advance function
         if (is_checked('auto_advance_tickbox')) {
           auto_advance();
+        }
+        // Execute guess practice if enabled
+        if (is_checked('guess_practice_tickbox')) {
+          guess_practice();
         }
       }
     } else {
       write_to_debug_console('Iframe not found.');
-      if (is_checked('guess_practice_tickbox')) {
-        guess_practice();
-      }
+      // Execute auto_advance function
       if (is_checked('auto_advance_tickbox')) {
         auto_advance();
+      }
+      // Execute guess practice if enabled
+      if (is_checked('guess_practice_tickbox')) {
+        guess_practice();
       }
     }
   }
@@ -330,21 +341,22 @@
 
   // Function to execute auto_advance function
   function auto_advance() {
-    if (is_checked('auto_advance_tickbox')) {
-      var activity_title = document.getElementById("activity-title").innerText;
-      if (activity_title !== "Quiz") {
-        try {
-          document.querySelector('.footnav.goRight').click();
-        } catch (TypeError) {}
-        try {
-          window.frames[0].API.FrameChain.nextFrame();
-        } catch (TypeError) {}
+    if (!is_checked('auto_advance_tickbox')) {
+      return;
+    }
+    var activity_title = document.getElementById("activity-title").innerText;
+    if (activity_title !== "Quiz") {
+      try {
+        document.querySelector('.footnav.goRight').click();
+      } catch (TypeError) {}
+      try {
+        window.frames[0].API.FrameChain.nextFrame();
+      } catch (TypeError) {}
 
-        var frame_right_links = document.querySelectorAll('li.FrameRight a');
-        frame_right_links.forEach(function(link) {
-          link.click();
-        });
-      }
+      var frame_right_links = document.querySelectorAll('li.FrameRight a');
+      frame_right_links.forEach(function(link) {
+        link.click();
+      });
     }
   }
 
@@ -355,6 +367,9 @@
   }
 
   function guess_practice() {
+    if (!is_checked('guess_practice_tickbox')) {
+      return;
+    }
     try {
       const activity_title = document.getElementById('activity-title').innerText;
       if (activity_title === 'Assignment') return;
